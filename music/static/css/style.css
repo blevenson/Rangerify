@@ -1,6 +1,5 @@
 body {
     background-color:  rgb(11, 198, 255);
-    overflow: hidden 
 }
 
 .splashScreen a:hover {
@@ -20,12 +19,12 @@ a {
 }
 
 #logoImg {
-    width: 10%;
+    width: 20%;
     padding-top: 30px;
 }
 
 #logoText {
-    font-family: cursive;
+    font-family: Al Bayan;
     font-weight: bold;
-    font-size: 50px;
+    font-size: 25px;
 }

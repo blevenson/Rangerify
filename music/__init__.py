@@ -18,15 +18,8 @@ app.config.from_object('music.config')
 app.config.from_envvar('MUSIC_SETTINGS', silent=True)
 
 
-# def load_questions():
-#     """Load questions."""
-#     output = []
-#     with open(os.path.dirname(__file__) + '/questions.txt', 'r') as f_in:
-#         for line in f_in:
-#             output.append(line.strip())
-#     return output
-
-# QUESTIONS = load_questions()
+# Stores [priority, {song}]
+SONG_QUEUE = []
 
 # Tell our app about views and model.  This is dangerously close to a
 # circular import, which is naughty, but Flask was designed that way.

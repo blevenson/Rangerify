@@ -6,6 +6,7 @@ class Queue extends React.Component {
 
     this.state = {
       songs: [],
+      add_song: "",
     };
 
     this.handleAddButton = this.handleAddButton.bind(this);
@@ -16,7 +17,7 @@ class Queue extends React.Component {
   }
 
   componentDidMount() {
-    //this.interval = setInterval(() => this.getSongs(), 1000);
+    this.interval = setInterval(() => this.getSongs(), 1000);
   }
 
   componentWillUnmount() {
@@ -26,7 +27,7 @@ class Queue extends React.Component {
 
   getSongs() {
 
-    fetch('/api/v1/players', {
+    fetch('/api/v1/queue', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
@@ -36,150 +37,52 @@ class Queue extends React.Component {
         return response.json();
       }).then((data) => {
         this.setState(prevState => ({
-          players: data.players,
+          songs: data.queue,
         }));
       })
       .catch();
-
-      // Update answered players
-      var ansPlayers = [];
-      this.state.players.forEach(function(player) {
-        if(player.ans1 !== "" && player.ans2 !== "") {
-          ansPlayers.push(player)
-        }
-      });
-
-      this.setState(prevState => ({
-          answeredPlayers: ansPlayers,
-        }));
-
-      // Check if all players have answered
-      if(this.state.answeredPlayers.length === this.state.players.length && this.state.answeredPlayers.length > 0) {
-        // All players have answered, next stage
-        this.setState(prevState => ({
-          stage: 2,
-        }));
-      }
-
-      // Update voted players
-      fetch('/api/v1/votedPlayers', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      })
-      .then((response) => {
-        if (!response.ok) throw Error(response.statusText);
-        return response.json();
-      }).then((data) => {
-        this.setState(prevState => ({
-          votedPlayers: data.voters,
-        }));
-      })
-      .catch();
-
-      // Check if all players have voted
-      if(this.state.votedPlayers.length === this.state.players.length && this.state.votedPlayers.length > 0) {
-        // All players have voted, next stage
-        this.setState(prevState => ({
-          stage: 3,
-        }));
-      }
-
-      // Update winners
-      fetch('/api/v1/winners', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      })
-      .then((response) => {
-        if (!response.ok) throw Error(response.statusText);
-        return response.json();
-      }).then((data) => {
-        this.setState(prevState => ({
-          winners: data.winners,
-        }));
-      })
-      .catch();
-
   }
 
   handleAddButton(event) {
     event.preventDefault();
 
+    let new_song = this.state.add_song
+    this.setState({add_song: ""});
+
+    /*
     this.setState({
       songs: [{"name": this.state.add_song}]
     });
+    */
 
-    fetch('/api/v1/resetanswer', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    fetch('/api/v1/assignquestions', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    this.setState(prevState => ({
-          stage: 1,
-          answeredPlayers: [],
-        }));
-
-  }
-
-  handleUpVoteButton() {
-    fetch('/api/v1/resetanswer', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    fetch('/api/v1/resetquestions', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    fetch('/api/v1/resetvotes', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    this.setState(prevState => ({
-          stage: 0,
-          answeredPlayers: [],
-        }));
-
-    // Increment scores
-    fetch('/api/v1/incrementScores', {
+    // Add song
+    fetch('/api/v1/addsong', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
-      body: JSON.stringify({"winners": this.state.winners}),
+      body: JSON.stringify({"song_title": new_song}),
     })
 
   }
 
-  handleDownVoteButton() {
-    fetch('/api/v1/resetplayers', {
-      method: 'GET',
+  handleUpVoteButton(e) {
+    // Up vote song
+    fetch('/api/v1/updatepriority', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
+      body: JSON.stringify({"song_title": e.target.value, "weight": 1}),
     })
 
-    fetch('/api/v1/resetquestions', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
+  }
 
-    fetch('/api/v1/resetvotes', {
-      method: 'GET',
+  handleDownVoteButton(e) {
+    // Down vote song
+    fetch('/api/v1/updatepriority', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
+      body: JSON.stringify({"song_title": e.target.value, "weight": -1}),
     })
   }
 
@@ -197,7 +100,7 @@ class Queue extends React.Component {
     output = (<div>
     <form className="songForm" id="song-form" onSubmit={this.handleAddButton}>
         <label>
-          <input type="text" placeholder="Song" onChange={this.handleSongChange} />
+          <input type="text" value={this.state.add_song} placeholder="Song" onChange={this.handleSongChange} />
         </label>
       </form>
     <button onClick={this.handleAddButton}>Add Song</button>
@@ -207,7 +110,7 @@ class Queue extends React.Component {
         <ul>
             {
             this.state.songs.map((song, index) =>
-              <li key={index}><p>{song.name}</p> <button onClick={this.handleUpVoteButton}>Good</button><button onClick={this.handleDownVoteButton}>Bad</button> </li>)
+              <li key={index}><p>{song[1]}: {song[0]}</p> <button value={song[1]} onClick={this.handleUpVoteButton}>Good</button><button value={song[1]} onClick={this.handleDownVoteButton}>Bad</button> </li>)
               }
           </ul>
           </div>);
