@@ -1,0 +1,31 @@
+body {
+    background-color:  rgb(11, 198, 255);
+    overflow: hidden 
+}
+
+.splashScreen a:hover {
+    background-color: rgb(255, 192, 17);
+}
+
+.splashScreen {
+    text-align: center 
+}
+
+a {
+    text-decoration: none;
+    background-color: orange;
+    color: white;
+    padding: 10px;
+    margin-right: 10px
+}
+
+#logoImg {
+    width: 10%;
+    padding-top: 30px;
+}
+
+#logoText {
+    font-family: cursive;
+    font-weight: bold;
+    font-size: 50px;
+}

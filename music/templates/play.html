@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiplash</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="playScreen">
+        <p>Waiting for game to start...</p>
+        <script type="text/javascript">
+          setInterval(() => {
+                console.log(get_questions());
+            }, 1000);
+
+          function get_questions() {
+            fetch('/api/v1/playerquestions', {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+            })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            })
+            .then((data) => {
+                if(data.questions.length > 0) {
+                    window.location.replace("/answer");
+                }
+            })
+            .catch();
+        }
+        </script>
+    </div>
+</body>
+</html>
