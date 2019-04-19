@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rangerify</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="splashScreen">
+        <img id="logoImg" src="/static/images/logo.png" alt="logo">
+        <p id="logoText">Rangerify</p>
+        <p id="currIp">Connect to IP: <strong>{{IP}}</strong></p>
+    </div>
+
+    <!-- React Queue -->
+    <div id="reactEntry">Loading queue ...</div>
+      <!-- Load JavaScript -->
+      <script type="text/javascript" src="{{ url_for('static', filename='js/bundle.js') }}"></script>
+</body>
+</html>

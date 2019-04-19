@@ -1,52 +1,30 @@
 import React from 'react';
 
-class Host extends React.Component {
+class Queue extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      players: [],
-      stage: 0,
-      answeredPlayers: [],
-      votedPlayers: [],
-      winners: [],
+      songs: [],
     };
 
-    this.handleStartButton = this.handleStartButton.bind(this);
-    this.handleResetPlayers = this.handleResetPlayers.bind(this);
-    this.handleDoneButton = this.handleDoneButton.bind(this);
+    this.handleAddButton = this.handleAddButton.bind(this);
+    this.handleUpVoteButton = this.handleUpVoteButton.bind(this);
+    this.handleDownVoteButton = this.handleDownVoteButton.bind(this);
+    this.handleSongChange = this.handleSongChange.bind(this);
 
   }
 
   componentDidMount() {
-    this.interval = setInterval(() => this.getPlayers(), 1000);
+    //this.interval = setInterval(() => this.getSongs(), 1000);
   }
 
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
-  handleResetPlayers() {
-    fetch('/api/v1/resetplayers', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
 
-    fetch('/api/v1/resetquestions', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-
-    fetch('/api/v1/resetvotes', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-    })
-  }
-
-  getPlayers() {
+  getSongs() {
 
     fetch('/api/v1/players', {
       method: 'GET',
@@ -125,7 +103,13 @@ class Host extends React.Component {
 
   }
 
-  handleStartButton() {
+  handleAddButton(event) {
+    event.preventDefault();
+
+    this.setState({
+      songs: [{"name": this.state.add_song}]
+    });
+
     fetch('/api/v1/resetanswer', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -145,7 +129,7 @@ class Host extends React.Component {
 
   }
 
-  handleDoneButton() {
+  handleUpVoteButton() {
     fetch('/api/v1/resetanswer', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -179,84 +163,63 @@ class Host extends React.Component {
 
   }
 
+  handleDownVoteButton() {
+    fetch('/api/v1/resetplayers', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+    })
+
+    fetch('/api/v1/resetquestions', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+    })
+
+    fetch('/api/v1/resetvotes', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+    })
+  }
+
+  handleSongChange(event) {
+    this.setState({add_song: event.target.value});
+    if(event.which == 13) {
+      handleAddButton(event);
+    }
+  }
+
 
   render() {
     let output = ""
-    switch(this.state.stage) {
-      case 0:
-        // Waiting for players
-        output = (<div><p>Waiting for all players...</p>
-          <ul>
-            {
-            this.state.players.map((player, index) =>
-              <li key={index}><p>{player.name}: {player.points}</p></li>)
-              }
-          </ul>
 
-        { this.state.players.length > 2 && 
-          <button onClick={this.handleStartButton}>Start</button>
-        }
-        <button onClick={this.handleResetPlayers}>Reset</button>
-        </div>);
-        break;
+    output = (<div>
+    <form className="songForm" id="song-form" onSubmit={this.handleAddButton}>
+        <label>
+          <input type="text" placeholder="Song" onChange={this.handleSongChange} />
+        </label>
+      </form>
+    <button onClick={this.handleAddButton}>Add Song</button>
 
-      case 1:
-        // Answering questions
-        output = (<div><p>Waiting for players to answer questions...</p>
+    <p>Current Queue...</p>
 
         <ul>
             {
-            this.state.answeredPlayers.map((player, index) =>
-              <li key={index}><p>{player.name}</p></li>)
+            this.state.songs.map((song, index) =>
+              <li key={index}><p>{song.name}</p> <button onClick={this.handleUpVoteButton}>Good</button><button onClick={this.handleDownVoteButton}>Bad</button> </li>)
               }
           </ul>
           </div>);
-
-        break;
-
-      case 2:
-        // Display answers and wait for all votes
-        output = (<div><p>Waiting for players to vote on questions...</p>
-
-        <ul>
-            {
-            this.state.votedPlayers.map((player, index) =>
-              <li key={index}><p>{player}</p></li>)
-              }
-          </ul>
-          </div>);
-
-        break;
-
-      case 3:
-        // Display winners of votes
-        output = (<div><p>Winners:</p>
-
-        <ul>
-            {
-            this.state.winners.map((question, index) =>
-              <li key={index}>
-                <p>{question.question}</p>
-                <p>{question.ansA + ": \t" + question.votesA}</p>
-                <p>{question.ansB + ": \t" + question.votesB}</p>
-              </li>)
-              }
-          </ul>
-          <button onClick={this.handleDoneButton}>Done</button>
-          </div>);
-
-        break;
-
-    }
     return (
-      <div className="host">
+      <div className="queue">
         {output}
       </div>
     );
   }
 }
 
-Host.propTypes = {
+Queue.propTypes = {
 };
 
-export default Host;
+export default Queue;

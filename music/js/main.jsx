@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Host from './host';
+import Queue from './queue';
 
 ReactDOM.render(
-  <Host />,
+  <Queue />,
   document.getElementById('reactEntry'),
 );

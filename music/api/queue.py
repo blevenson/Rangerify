@@ -1,11 +1,11 @@
-"""REST API for services."""
+"""REST API for queue."""
 import flask
 import music
 
 
-@music.app.route('/api/v1/', methods=["GET"])
-def get_services():
-    """Return list of services.
+@music.app.route('/api/v1/queue', methods=["GET", "POST"])
+def get_queue():
+    """Return queue or add song to queue.
 
     Example:
     {

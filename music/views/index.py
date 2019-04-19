@@ -1,15 +1,15 @@
 """
-Quiplash server index (main) view.
+Music server index (main) view.
 
 URLs include:
 /
 """
 import flask
-import quiplash
+import music
 import socket
 
 
-@quiplash.app.route('/', methods=['GET', 'POST'])
+@music.app.route('/', methods=['GET', 'POST'])
 def show_index():
     """Display / route."""
     context = {
@@ -18,4 +18,4 @@ def show_index():
     # Show server IP so know what to connect to
     context['IP'] = socket.gethostbyname(socket.gethostname()) + ":8000/"
 
-    return flask.render_template("index.html", **context)
+    return flask.render_template("queue.html", **context)
