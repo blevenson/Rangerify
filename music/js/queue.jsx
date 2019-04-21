@@ -7,6 +7,8 @@ class Queue extends React.Component {
     this.state = {
       songs: [],
       add_song: "",
+      liked_songs: [],
+      disliked_songs: [],
     };
 
     this.handleAddButton = this.handleAddButton.bind(this);
@@ -62,10 +64,27 @@ class Queue extends React.Component {
       credentials: 'same-origin',
       body: JSON.stringify({"song_title": new_song}),
     })
+    .then((response) => {
+        if (!response.ok) throw Error(response.statusText);
+        return response.json();
+      })
+      .then((data) => {
+        if(data.hasOwnProperty('error')) {
+          alert(data.error);
+        }
+      })
 
   }
 
   handleUpVoteButton(e) {
+    this.state.liked_songs.push(e.target.value);
+
+    // Check if should switch vote to up vote
+    let index = this.state.disliked_songs.indexOf(e.target.value);
+    if (index > -1) {
+      this.state.disliked_songs.splice(index, 1);
+    }
+
     // Up vote song
     fetch('/api/v1/updatepriority', {
       method: 'POST',
@@ -77,6 +96,14 @@ class Queue extends React.Component {
   }
 
   handleDownVoteButton(e) {
+    this.state.disliked_songs.push(e.target.value);
+
+    // Check if should switch vote to down vote
+    let index = this.state.liked_songs.indexOf(e.target.value);
+    if (index > -1) {
+      this.state.liked_songs.splice(index, 1);
+    }
+
     // Down vote song
     fetch('/api/v1/updatepriority', {
       method: 'POST',
@@ -96,7 +123,6 @@ class Queue extends React.Component {
 
   render() {
     let output = ""
-
     output = (<div>
     <form className="songForm" id="song-form" onSubmit={this.handleAddButton}>
         <label>
@@ -110,7 +136,11 @@ class Queue extends React.Component {
         <ul>
             {
             this.state.songs.map((song, index) =>
-              <li key={index}><p>{song[1]}: {song[0]}</p> <button value={song[1]} onClick={this.handleUpVoteButton}>Good</button><button value={song[1]} onClick={this.handleDownVoteButton}>Bad</button> </li>)
+              <li key={index}>
+                <p>{song[1]}: {song[0]}</p> 
+                <button disabled={this.state.liked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleUpVoteButton}>Good Boy</button>
+                <button disabled={this.state.disliked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleDownVoteButton}>Bad Dog</button> 
+              </li>)
               }
           </ul>
           </div>);

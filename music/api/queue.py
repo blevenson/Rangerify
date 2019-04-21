@@ -31,11 +31,17 @@ def add_song():
     }
     """
 
-    heapq.heappush(music.SONG_QUEUE, [1, flask.request.json["song_title"]])
-
     context = {
         "url": "/api/v1/addsong",
     }
+
+    # Check if song already in queue
+    if flask.request.json["song_title"].lower() in (song[1].lower() for song in music.SONG_QUEUE):
+        # song already added
+        context["error"] = "Song already in queue"
+        return flask.jsonify(**context)
+
+    heapq.heappush(music.SONG_QUEUE, [1, flask.request.json["song_title"]])
 
     return flask.jsonify(**context)
 

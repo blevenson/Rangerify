@@ -1,5 +1,6 @@
 #!/bin/bash
 # Music Server
+# Load JS: ./node_modules/.bin/webpack --watch
 
 # Sanity check command line options
 usage() {
