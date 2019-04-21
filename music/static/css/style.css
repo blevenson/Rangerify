@@ -10,6 +10,30 @@ body {
     text-align: center 
 }
 
+button {
+  /* base button properties */
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 15px;
+  margin-right: 10px;
+}
+.button-selected {
+    background-color: #4caf508a; /* Green */
+}
+
+.button-delete {
+  background-color: red;
+}
+
+.button-add {
+  margin-top: 5px;
+}
+
 a {
     text-decoration: none;
     background-color: orange;
@@ -19,7 +43,7 @@ a {
 }
 
 #logoImg {
-    width: 20%;
+    width: 30%;
     padding-top: 30px;
 }
 

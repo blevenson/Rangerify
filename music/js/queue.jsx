@@ -110,12 +110,30 @@ class Queue extends React.Component {
   }
 
   handleUpVoteButton(e) {
+    // Check if unclicking
+    let index = this.state.liked_songs.indexOf(e.target.value);
+    if (index > -1) {
+      this.state.liked_songs.splice(index, 1);
+
+      // Down vote song
+      fetch('/api/v1/updatepriority', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({"song_title": e.target.value, "weight": -1}),
+      })
+
+      return;
+    }
+
     this.state.liked_songs.push(e.target.value);
 
     // Check if should switch vote to up vote
-    let index = this.state.disliked_songs.indexOf(e.target.value);
+    index = this.state.disliked_songs.indexOf(e.target.value);
+    let weight = 1;
     if (index > -1) {
       this.state.disliked_songs.splice(index, 1);
+      weight = 2;
     }
 
     // Up vote song
@@ -123,18 +141,36 @@ class Queue extends React.Component {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
-      body: JSON.stringify({"song_title": e.target.value, "weight": 1}),
+      body: JSON.stringify({"song_title": e.target.value, "weight": weight}),
     })
 
   }
 
   handleDownVoteButton(e) {
+    // Check if unclicking
+    let index = this.state.disliked_songs.indexOf(e.target.value);
+    if (index > -1) {
+      this.state.disliked_songs.splice(index, 1);
+
+      // Up vote song
+      fetch('/api/v1/updatepriority', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({"song_title": e.target.value, "weight": 1}),
+      })
+
+      return;
+    }
+
     this.state.disliked_songs.push(e.target.value);
 
     // Check if should switch vote to down vote
-    let index = this.state.liked_songs.indexOf(e.target.value);
+    index = this.state.liked_songs.indexOf(e.target.value);
+    let weight = -1;
     if (index > -1) {
       this.state.liked_songs.splice(index, 1);
+      weight = -2;
     }
 
     // Down vote song
@@ -142,7 +178,7 @@ class Queue extends React.Component {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
-      body: JSON.stringify({"song_title": e.target.value, "weight": -1}),
+      body: JSON.stringify({"song_title": e.target.value, "weight": weight}),
     })
   }
 
@@ -185,7 +221,7 @@ class Queue extends React.Component {
   getDeleteButton(title) {
     // Check if I added this song -> I can delete it
     if(this.state.my_songs.indexOf(title) >= 0)
-      return (<button value={title} onClick={this.handleDeleteButton}>Put Down</button>);
+      return (<button class="button-delete" value={title} onClick={this.handleDeleteButton}>Put Down</button>);
     return ("");
   }
 
@@ -198,7 +234,7 @@ class Queue extends React.Component {
           <input type="text" value={this.state.add_song} placeholder="Song" onChange={this.handleSongChange} />
         </label>
       </form>
-    <button onClick={this.handleAddButton}>Add Song</button>
+    <button class="button-add" onClick={this.handleAddButton}>Add Song</button>
 
     <p>Current Queue...</p>
 
@@ -207,8 +243,8 @@ class Queue extends React.Component {
             this.state.songs.map((song, index) =>
               <li key={index}>
                 <p>{song[1]}: {song[0]}</p> 
-                <button disabled={this.state.liked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleUpVoteButton}>Good Boy</button>
-                <button disabled={this.state.disliked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleDownVoteButton}>Bad Dog</button> 
+                <button class={this.state.liked_songs.indexOf(song[1]) >= 0 ? "button-selected" : "button-plain"} value={song[1]} onClick={this.handleUpVoteButton}>Good Boy</button>
+                <button class={this.state.disliked_songs.indexOf(song[1]) >= 0 ? "button-selected" : "button-plain"} value={song[1]} onClick={this.handleDownVoteButton}>Bad Dog</button> 
 
                 {this.getDeleteButton(song[1])}
               </li>)
