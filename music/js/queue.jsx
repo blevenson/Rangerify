@@ -9,12 +9,14 @@ class Queue extends React.Component {
       add_song: "",
       liked_songs: [],
       disliked_songs: [],
+      my_songs: [],
     };
 
     this.handleAddButton = this.handleAddButton.bind(this);
     this.handleUpVoteButton = this.handleUpVoteButton.bind(this);
     this.handleDownVoteButton = this.handleDownVoteButton.bind(this);
     this.handleSongChange = this.handleSongChange.bind(this);
+    this.handleDeleteButton = this.handleDeleteButton.bind(this);
 
   }
 
@@ -49,6 +51,7 @@ class Queue extends React.Component {
     event.preventDefault();
 
     let new_song = this.state.add_song
+
     this.setState({add_song: ""});
 
     /*
@@ -71,6 +74,9 @@ class Queue extends React.Component {
       .then((data) => {
         if(data.hasOwnProperty('error')) {
           alert(data.error);
+        } else {
+          // Successfully added song
+          this.state.my_songs.push(new_song)
         }
       })
 
@@ -120,6 +126,42 @@ class Queue extends React.Component {
     }
   }
 
+  handleDeleteButton(e) {
+
+    let song = e.target.value;
+
+    // Check if should delete up vote
+    let index = this.state.liked_songs.indexOf(song);
+    if (index > -1) {
+      this.state.liked_songs.splice(index, 1);
+    }
+
+    // Check if should delete down vote
+    index = this.state.disliked_songs.indexOf(song);
+    if (index > -1) {
+      this.state.disliked_songs.splice(index, 1);
+    }
+
+    // Remove from my_songs
+    this.state.my_songs.splice(this.state.my_songs.indexOf(song), 1);
+
+    // Delete from server
+    fetch('/api/v1/deletesong', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({"song_title": song}),
+    })
+
+  }
+
+  getDeleteButton(title) {
+    // Check if I added this song -> I can delete it
+    if(this.state.my_songs.indexOf(title) >= 0)
+      return (<button value={title} onClick={this.handleDeleteButton}>Put Down</button>);
+    return ("");
+  }
+
 
   render() {
     let output = ""
@@ -140,6 +182,8 @@ class Queue extends React.Component {
                 <p>{song[1]}: {song[0]}</p> 
                 <button disabled={this.state.liked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleUpVoteButton}>Good Boy</button>
                 <button disabled={this.state.disliked_songs.indexOf(song[1]) >= 0} value={song[1]} onClick={this.handleDownVoteButton}>Bad Dog</button> 
+
+                {this.getDeleteButton(song[1])}
               </li>)
               }
           </ul>

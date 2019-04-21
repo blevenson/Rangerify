@@ -41,7 +41,7 @@ def add_song():
         context["error"] = "Song already in queue"
         return flask.jsonify(**context)
 
-    heapq.heappush(music.SONG_QUEUE, [1, flask.request.json["song_title"]])
+    heapq.heappush(music.SONG_QUEUE, [0, flask.request.json["song_title"]])
 
     return flask.jsonify(**context)
 
@@ -68,5 +68,31 @@ def update_priority():
     context = {
         "url": "/api/v1/updatepriority",
     }
+
+    return flask.jsonify(**context)
+
+
+@music.app.route('/api/v1/deletesong', methods=["POST"])
+def delete_song():
+    """Delete song from queue
+    Example:
+    {
+        "url": "/api/v1/deletesong"
+    }
+    """
+
+    context = {
+        "url": "/api/v1/deletesong",
+    }
+
+    song_title = flask.request.json["song_title"]
+
+    # Remove song
+    for song in music.SONG_QUEUE:
+        if song[1] == song_title:
+            music.SONG_QUEUE.remove(song)
+            break
+
+    heapq.heapify(music.SONG_QUEUE)
 
     return flask.jsonify(**context)
