@@ -40,9 +40,36 @@ class Queue extends React.Component {
         if (!response.ok) throw Error(response.statusText);
         return response.json();
       }).then((data) => {
+        // Check that all songs are still good and haven't been removed from the backend
+
         this.setState(prevState => ({
           songs: data.queue,
+          liked_songs: this.state.liked_songs.filter(function(value, index, arr) {
+            for(let song of data.queue) {
+              if(song[1] === value) {
+                return true;
+              }
+            }
+            return false;
+          }),
+          disliked_songs: this.state.disliked_songs.filter(function(value, index, arr) {
+            for(let song of data.queue) {
+              if(song[1] === value) {
+                return true;
+              }
+            }
+            return false;
+          }),
+          my_songs: this.state.my_songs.filter(function(value, index, arr) {
+            for(let song of data.queue) {
+              if(song[1] === value) {
+                return true;
+              }
+            }
+            return false;
+          }),
         }));
+
       })
       .catch();
   }
