@@ -2,7 +2,8 @@
 import flask
 import music
 import heapq
-
+from music.api import search
+from googleapiclient.errors import HttpError
 
 @music.app.route('/api/v1/queue', methods=["GET"])
 def get_queue():
@@ -95,4 +96,30 @@ def delete_song():
 
     heapq.heapify(music.SONG_QUEUE)
 
+    return flask.jsonify(**context)
+
+@music.app.route('/api/v1/nextsong', methods=["GET"])
+def get_next_song():
+    """Return youtube video link of next song
+        Example:
+        {
+        "url": "/api/v1/nextsong"
+        "video": https://www.youtube.com/watch?v=ApXoWvfEYVU
+        }
+    """
+    context = {
+        "url": "/api/v1/nextsong",
+    }
+    
+    if len(music.SONG_QUEUE) < 1:
+        context["video"] = ""
+        return flask.jsonify(**context)
+
+    try:
+        video_url = search.get_next_song()
+    except HttpError as e:
+        print('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
+    
+    context["video"] = video_url
+    
     return flask.jsonify(**context)
